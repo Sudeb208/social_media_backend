@@ -23,8 +23,8 @@ const router = express.Router();
 router.post(
     '/create/post',
     requireSignin,
-    getLocation,
-    upload.array('postPicture'),
+    // getLocation,
+    upload.single('postPicture'),
     createPost,
 );
 

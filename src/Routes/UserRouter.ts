@@ -9,7 +9,14 @@ import {
     createUser,
     loginUser,
     GoogleAuthentication,
+    verifiyToken,
+    resendToken,
+    changePassword,
+    forgotPasswordRequest,
+    isValidCode,
+    signOut,
 } from '../Controller/userController';
+import { requireSignin } from '../middleware/CommonMiddleware';
 
 const Storage = multer.diskStorage({
     destination(_req, file, cb) {
@@ -25,7 +32,12 @@ const upload = multer({
 
 Router.post('/user/account/create', upload.single('profileImage'), createUser);
 Router.post('/user/account', loginUser);
-Router.post('/user/account/verifiy/:user_id/:tokenid', loginUser);
+Router.post('/user/account/changepassword', changePassword);
+Router.post('/user/account/forgotpassword/request', forgotPasswordRequest);
+Router.post('/user/account/forgotpassword/:id', isValidCode);
+Router.get('/user/account/verifiy/:user_id/:token', verifiyToken);
+Router.get('/user/account/resend', resendToken);
 Router.post('/user/account/login/google/oauth2', GoogleAuthentication);
+Router.post('/user/account/logout', requireSignin, signOut);
 
 export default Router;

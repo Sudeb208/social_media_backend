@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { text } from 'stream/consumers';
 
-const email = async (
+const sendEmail = async (
     email: string,
     subject: string,
     text: string,
@@ -9,22 +9,28 @@ const email = async (
 ) => {
     try {
         const transporter = nodemailer.createTransport({
-            host: 'http://localhost:4001',
-            secure: false,
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
             auth: {
-                user: 'rollinssudeb9@gmail.com',
-                pass: 'rollins610rollins610',
+                user: process.env.EMAIL,
+                pass: process.env.PASS,
             },
         });
+        console.log(process.env.EMAIL);
 
         let info = await transporter.sendMail({
-            from: 'Instagram',
+            from: process.env.EMAIL,
             to: email,
             subject: subject,
             text: text,
             html: body,
         });
+        console.log(info);
+        return info;
     } catch (error) {
         console.log(error);
     }
 };
+
+export default sendEmail;

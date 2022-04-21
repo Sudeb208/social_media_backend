@@ -3,9 +3,13 @@ import Post from '../model/dbModel';
 import React from '../model/likeModel';
 import User from '../model/userModel';
 
+//post like
 const postLike = async (req: any, res: any) => {
     try {
-        const { post_id, isPost, like, user_id } = req.body;
+        const { post_id, isPost, like } = req.body;
+        console.log(req.body.post_id);
+
+        console.log(req.user._id);
 
         //find post if post exit then create or update new like model
         if (isPost) {
@@ -17,7 +21,7 @@ const postLike = async (req: any, res: any) => {
                 //if Post's like collection exit then update like collection
                 if (isReact) {
                     const isLiked = await isReact.React.filter(
-                        (data: any) => data.user_id == user_id,
+                        (data: any) => data.user_id == req.user._id,
                     );
                     console.log(isLiked);
                     if (isLiked.length > 0) {
@@ -38,7 +42,7 @@ const postLike = async (req: any, res: any) => {
                             $push: {
                                 React: {
                                     like: like,
-                                    user_id,
+                                    user_id: req.user._id,
                                 },
                             },
                         },
@@ -53,7 +57,7 @@ const postLike = async (req: any, res: any) => {
                     const obj = {
                         post_id,
                         isPost,
-                        React: { like: like, user_id },
+                        React: { like: like, user_id: req.user._id },
                     };
                     const likeData = new React(obj);
                     likeData.save(async (error: any, data: any) => {
@@ -76,6 +80,7 @@ const postLike = async (req: any, res: any) => {
             }
         } else {
             res.status(500).json({ error: 'unkown error' });
+            console.log('unknown error');
         }
     } catch (error) {
         if (error) {
@@ -84,7 +89,9 @@ const postLike = async (req: any, res: any) => {
         console.log(error);
     }
 };
+//end post like
 
+//count like
 const CountLike = async (req: any, res: any) => {
     try {
         const { post_id } = req.body;

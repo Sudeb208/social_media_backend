@@ -6,8 +6,8 @@ const tokenSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             required: true,
         },
-        token_id: {
-            type: mongoose.Schema.Types.ObjectId,
+        token: {
+            type: String,
             required: true,
         },
     },

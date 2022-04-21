@@ -34,6 +34,13 @@ const intence = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        tokens: [
+            {
+                deviceName: { type: String },
+                token: { type: String },
+                login_At: { type: Date, default: Date.now() },
+            },
+        ],
     },
 
     {

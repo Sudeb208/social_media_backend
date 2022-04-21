@@ -15,12 +15,23 @@ import user from './Routes/UserRouter';
 import comment from './Routes/commentRouter';
 import react from './Routes/likeRoute';
 import follower from './Routes/followRouter';
+import notification from './Routes/notificationRouter';
+import personReact from './Routes/personReactRouter';
+import conversation from './Routes/conversationRoute';
+import message from './Routes/messageRoute';
 
+import path from 'path';
+
+App.use('/public', express.static(path.join(__dirname, 'upload')));
 App.use('/api', post);
 App.use('/api', user);
 App.use('/api', comment);
 App.use('/api', react);
 App.use('/api', follower);
+App.use('/api', notification);
+App.use('/api', personReact);
+App.use('/api', conversation);
+App.use('/api', message);
 
 App.get('/', (req: any, res): void => {
     req.name = 'sudeb';
@@ -47,4 +58,6 @@ const option: any = {
 
 //listening the port
 const port: number = 4001;
-App.listen(port, (): void => console.log('app runing in port ' + port));
+App.listen(port, '192.168.43.247', (): void =>
+    console.log('app runing in port ' + port),
+);

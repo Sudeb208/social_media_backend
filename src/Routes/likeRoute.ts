@@ -4,11 +4,12 @@ import {
     getLikerPerson,
     postLike,
 } from '../Controller/likeController';
+import { requireSignin } from '../middleware/CommonMiddleware';
 
 const Router = express.Router();
 
-Router.post('/posts&comments/like', postLike);
-Router.get('/post/react', CountLike);
+Router.post('/posts&comments/like', requireSignin, postLike);
+Router.post('/post/react', CountLike);
 Router.get('/post/reacter/person', getLikerPerson);
 
 export default Router;

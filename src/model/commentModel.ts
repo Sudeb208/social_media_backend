@@ -13,10 +13,12 @@ const commentSchema = new mongoose.Schema(
                 user_id: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: 'User',
-                    required: true,
                 },
                 parent_id: {
                     type: String,
+                },
+                date: {
+                    type: Date,
                 },
             },
         ],

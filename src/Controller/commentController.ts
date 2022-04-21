@@ -5,7 +5,9 @@ import Post from '../model/dbModel';
 //comment create
 const createComment = async (req: any, res: any) => {
     try {
-        const { user_id, post_id, comment, parent_id } = req.body;
+        const { post_id, comment, parent_id } = req.body;
+
+        const user_id = req.user._id;
 
         const commentData = await Comment.findOne({ post_id });
 
@@ -19,6 +21,7 @@ const createComment = async (req: any, res: any) => {
                             mainComment: comment,
                             user_id,
                             parent_id,
+                            date: Date.now(),
                         },
                     },
                 },
@@ -34,7 +37,7 @@ const createComment = async (req: any, res: any) => {
         // if comment section not exit then createComment seaction
         const commentObj = {
             post_id,
-            comment: { mainComment: comment, user_id },
+            comment: { mainComment: comment, user_id, date: Date.now() },
         };
         const createComment = new Comment(commentObj);
         createComment.save(async (error: any, data: any) => {
@@ -57,15 +60,17 @@ const createComment = async (req: any, res: any) => {
         res.status(500).json({ error });
     }
 };
-//end of ccomment create
+//end of comment create
 
 // create comment list
 const createCommentList = (comments: any, parentId?: any): any => {
     const commentList = [];
     let comment;
-    if (parentId == undefined) {
-        comment = comments.filter((cat: any) => cat.parent_id === undefined);
-        // console.log('undefine' + comment);
+    if (parentId == undefined || parentId == '') {
+        comment = comments.filter(
+            (cat: any) => cat.parent_id == '' || cat.parent_id == undefined,
+        );
+        console.log('undefine' + comment);
     }
     if (parentId) {
         comment = comments.filter((cat: any) => cat.parent_id == parentId);
@@ -76,6 +81,7 @@ const createCommentList = (comments: any, parentId?: any): any => {
             user_id: commt.user_id,
             parent_id: commt.parent_id,
             comment: commt.mainComment,
+            date: commt.date,
             replyComment: createCommentList(comments, commt._id),
         });
     }
@@ -85,12 +91,15 @@ const createCommentList = (comments: any, parentId?: any): any => {
 const getComment = async (req: any, res: any) => {
     try {
         const { post_id } = req.body;
-        const comments = await Comment.findOne({ post_id });
+        const comments = await Comment.findOne({ post_id }).populate({
+            path: 'comment.user_id',
+            select: 'fristName',
+        });
         if (comments) {
             const commentList = createCommentList(comments.comment);
             return res.status(200).json({ data: commentList });
         } else {
-            res.status(404).json({ error: 'comment not found' });
+            res.status(500).json({ error: 'comment not found' });
         }
     } catch (error) {
         res.status(500).json({ error });
@@ -102,19 +111,36 @@ const getComment = async (req: any, res: any) => {
 //reply comment
 const replyComment = async (req: any, res: any) => {
     try {
-        const { user_id, post_id, replyComment, comment_id } = req.body;
+        const { post_id, replyComment, parent_id } = req.body;
+
+        const user_id = req.user._id;
         // const post = await Comment.findOne({ $name: { fristName: 'sudeb' } });
         const Post = await Comment.findOne({ post_id });
         if (Post) {
             console.log('find post');
-            const child = await Post.comment.findOne({
-                _id: comment_id,
+            const parentComment = await Post.comment.findOne({
+                _id: parent_id,
             });
-            console.log(child);
+            console.log(parent_id);
 
-            const findComments = Post.comment.filter((arr: any, index: any) => {
-                return arr._id == comment_id;
-            });
+            if (parentComment) {
+                const pushComment = await Comment.findOneAndUpdate(
+                    { post_id },
+                    {
+                        $push: {
+                            comment: {
+                                mainComment: replyComment,
+                                user_id,
+                                parent_id,
+                                date: Date.now(),
+                            },
+                        },
+                    },
+                );
+                return res.status(201).json({ pushComment });
+            } else {
+                return res.status(200).json({ msg: 'something went worng' });
+            }
 
             //     console.log(findComments[0].comment);
             //     if (findComments.length > 0) {
